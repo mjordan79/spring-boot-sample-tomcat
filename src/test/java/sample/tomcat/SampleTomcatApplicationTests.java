@@ -17,6 +17,8 @@
 package sample.tomcat;
 
 import java.io.ByteArrayInputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
@@ -60,9 +62,24 @@ public class SampleTomcatApplicationTests {
 
 	@Test
 	public void testHome() {
-		ResponseEntity<String> entity = this.restTemplate.getForEntity("/", String.class);
+		ResponseEntity<String> entity = this.restTemplate.getForEntity("/hello", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(entity.getBody()).isEqualTo("Hello World");
+	}
+	
+	@Test
+	public void testHostname() {
+		ResponseEntity<String> entity = this.restTemplate.getForEntity("/", String.class);
+		String hostname = "Application running on pod: ";
+		
+		try {
+			hostname = hostname + InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException ex) {
+			hostname = "Cannot determine hostname";
+		}
+		
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(entity.getBody()).isEqualTo(hostname);
 	}
 
 	@Test
@@ -70,7 +87,7 @@ public class SampleTomcatApplicationTests {
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.set("Accept-Encoding", "gzip");
 		HttpEntity<?> requestEntity = new HttpEntity<>(requestHeaders);
-		ResponseEntity<byte[]> entity = this.restTemplate.exchange("/", HttpMethod.GET,
+		ResponseEntity<byte[]> entity = this.restTemplate.exchange("/hello", HttpMethod.GET,
 				requestEntity, byte[].class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		try (GZIPInputStream inflater = new GZIPInputStream(

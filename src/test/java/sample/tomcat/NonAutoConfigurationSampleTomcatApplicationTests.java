@@ -40,6 +40,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Basic integration tests for demo application.
  *
@@ -54,11 +57,26 @@ public class NonAutoConfigurationSampleTomcatApplicationTests {
 
 	@Test
 	public void testHome() throws Exception {
-		ResponseEntity<String> entity = this.restTemplate.getForEntity("/", String.class);
+		ResponseEntity<String> entity = this.restTemplate.getForEntity("/hello", String.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(entity.getBody()).isEqualTo("Hello World");
 	}
 
+	@Test
+	public void testHostname() {
+		ResponseEntity<String> entity = this.restTemplate.getForEntity("/", String.class);
+		String hostname = "Application running on pod: ";
+		
+		try {
+			hostname = hostname + InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException ex) {
+			hostname = "Cannot determine hostname";
+		}
+		
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(entity.getBody()).isEqualTo(hostname);
+	}
+	
 	@Configuration
 	@Import({ ServletWebServerFactoryAutoConfiguration.class,
 			DispatcherServletAutoConfiguration.class, WebMvcAutoConfiguration.class,

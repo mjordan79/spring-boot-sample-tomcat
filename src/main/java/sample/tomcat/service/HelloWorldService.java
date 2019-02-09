@@ -20,7 +20,7 @@ public class HelloWorldService {
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch(UnknownHostException ex) {
-			return "Cannot identify";
+			return "Cannot determine hostname";
 		}
 	}
 	
