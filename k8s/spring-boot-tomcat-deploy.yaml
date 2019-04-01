@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-tomcat
+  namespace: spring-boot
+  labels:
+    app: spring
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: spring
+  template:
+    metadata:
+      labels:
+        app: spring
+    spec:
+      containers:
+      - name: spring-boot-tomcat
+        image: mjordan79/spring-boot-tomcat:0.0.1-SNAPSHOT
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+        - name: regcred
